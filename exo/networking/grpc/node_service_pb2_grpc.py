@@ -5,10 +5,8 @@ import warnings
 
 from . import node_service_pb2 as node__service__pb2
 
-GRPC_GENERATED_VERSION = '1.64.1'
+GRPC_GENERATED_VERSION = '1.68.0'
 GRPC_VERSION = grpc.__version__
-EXPECTED_ERROR_RELEASE = '1.65.0'
-SCHEDULED_RELEASE_DATE = 'June 25, 2024'
 _version_not_supported = False
 
 try:
@@ -18,15 +16,12 @@ except ImportError:
     _version_not_supported = True
 
 if _version_not_supported:
-    warnings.warn(
+    raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
         + f' but the generated code in node_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
-        + f' This warning will become an error in {EXPECTED_ERROR_RELEASE},'
-        + f' scheduled for release on {SCHEDULED_RELEASE_DATE}.',
-        RuntimeWarning
     )
 
 
@@ -49,10 +44,10 @@ class NodeServiceStub(object):
                 request_serializer=node__service__pb2.TensorRequest.SerializeToString,
                 response_deserializer=node__service__pb2.Tensor.FromString,
                 _registered_method=True)
-        self.GetInferenceResult = channel.unary_unary(
-                '/node_service.NodeService/GetInferenceResult',
-                request_serializer=node__service__pb2.GetInferenceResultRequest.SerializeToString,
-                response_deserializer=node__service__pb2.InferenceResult.FromString,
+        self.SendExample = channel.unary_unary(
+                '/node_service.NodeService/SendExample',
+                request_serializer=node__service__pb2.ExampleRequest.SerializeToString,
+                response_deserializer=node__service__pb2.Loss.FromString,
                 _registered_method=True)
         self.CollectTopology = channel.unary_unary(
                 '/node_service.NodeService/CollectTopology',
@@ -91,7 +86,7 @@ class NodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetInferenceResult(self, request, context):
+    def SendExample(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -134,10 +129,10 @@ def add_NodeServiceServicer_to_server(servicer, server):
                     request_deserializer=node__service__pb2.TensorRequest.FromString,
                     response_serializer=node__service__pb2.Tensor.SerializeToString,
             ),
-            'GetInferenceResult': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetInferenceResult,
-                    request_deserializer=node__service__pb2.GetInferenceResultRequest.FromString,
-                    response_serializer=node__service__pb2.InferenceResult.SerializeToString,
+            'SendExample': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendExample,
+                    request_deserializer=node__service__pb2.ExampleRequest.FromString,
+                    response_serializer=node__service__pb2.Loss.SerializeToString,
             ),
             'CollectTopology': grpc.unary_unary_rpc_method_handler(
                     servicer.CollectTopology,
@@ -225,7 +220,7 @@ class NodeService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetInferenceResult(request,
+    def SendExample(request,
             target,
             options=(),
             channel_credentials=None,
@@ -238,9 +233,9 @@ class NodeService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/node_service.NodeService/GetInferenceResult',
-            node__service__pb2.GetInferenceResultRequest.SerializeToString,
-            node__service__pb2.InferenceResult.FromString,
+            '/node_service.NodeService/SendExample',
+            node__service__pb2.ExampleRequest.SerializeToString,
+            node__service__pb2.Loss.FromString,
             options,
             channel_credentials,
             insecure,
